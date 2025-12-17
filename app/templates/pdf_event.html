@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ event.title }}</title>
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            padding: 40px;
+            font-size: 14px;
+            color: #222;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .meta {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        .post {
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+            page-break-inside: avoid;
+        }
+
+        .author {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .date {
+            font-size: 11px;
+            color: #777;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            white-space: pre-wrap;
+            margin-bottom: 10px;
+        }
+
+        .image {
+            margin-top: 10px;
+        }
+
+        .image img {
+            max-width: 400px;
+            max-height: 400px;
+            display: block;
+            border-radius: 4px;
+        }
+
+        .footer {
+            margin-top: 60px;
+            font-size: 11px;
+            color: #888;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>{{ event.title }}</h1>
+
+    <div class="meta">
+        Wall działał przez {{ event.validity_label() }}<br>
+        Wygenerowano: {{ event.expires_at.strftime('%Y-%m-%d %H:%M') }}
+    </div>
+
+    {% for post in posts %}
+        <div class="post">
+            <div class="author">
+                {{ post.author_name or "Anonim" }}
+            </div>
+
+            <div class="date">
+                {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}
+            </div>
+
+            <div class="content">
+                {{ post.content }}
+            </div>
+
+            {% if post.image_path %}
+                <img src="{{ post.image_url }}">
+            {% endif %}
+
+        </div>
+    {% endfor %}
+
+    <div class="footer">
+        Wall Wspomnień · PDF wygenerowany automatycznie
+    </div>
+
+</body>
+</html>
