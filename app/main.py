@@ -1,8 +1,13 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
+from starlette.responses import RedirectResponse
+
 from app.db import engine
 from app import models
 from app.routes import event
 from fastapi.responses import HTMLResponse
+from fastapi import Request
+from fastapi.responses import HTMLResponse
+from app.auth_utils import get_current_user
 
 app = FastAPI()
 
@@ -10,36 +15,22 @@ models.Base.metadata.create_all(bind=engine)
 
 app.include_router(event.router)
 from fastapi.staticfiles import StaticFiles
+from app.routes import auth, dashboard
+
+app.include_router(auth.router)
+app.include_router(dashboard.router)
 
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 @app.get("/", response_class=HTMLResponse)
-def home():
+def home(request: Request, user = Depends(get_current_user)):
+    if user:
+        return RedirectResponse("/dashboard", status_code=303)
+
     return """
-    <html>
-        <body>
-            <h1>Wall Wspomnień</h1>
+    <h1>Wall Wspomnień</h1>
+    <p>Zbieraj życzenia, zdjęcia i wspomnienia w jednym miejscu.</p>
 
-            <form method="post" action="/event/create">
-                <label>Tytuł wydarzenia</label><br>
-                <input type="text" name="title" required><br><br>
-
-                <label>Email organizatora</label><br>
-                <input type="email" name="organizer_email" required><br><br>
-
-                <label>Czas trwania walla</label><br>
-                <select name="validity_minutes" required>
-                    <option value="1">1 minuta (test)</option>
-                    <option value="60">1 godzina</option>
-                    <option value="180">3 godziny</option>
-                    <option value="360">6 godzin</option>
-                    <option value="720">12 godzin</option>
-                    <option value="1440" selected>24 godziny</option>
-                </select><br><br>
-
-                <button type="submit">Utwórz wall</button>
-            </form>
-        </body>
-    </html>
+    <a href="/login"><button>Zaloguj się</button></a>
     """
 

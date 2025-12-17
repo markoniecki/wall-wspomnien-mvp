@@ -9,11 +9,17 @@ from sqlalchemy import Column, String, DateTime
 from datetime import datetime
 
 from sqlalchemy import Integer
+from sqlalchemy import Column, Integer, String
+from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import relationship
 
 class Event(Base):
     __tablename__ = "events"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user = relationship("User", backref="events")
 
     token = Column(String, unique=True, index=True, nullable=False)
     admin_token = Column(String, unique=True, index=True, nullable=False)
@@ -84,4 +90,15 @@ class Post(Base):
 
     event = relationship("Event", backref="posts")
 
+class User(Base):
+    __tablename__ = "users"
 
+    id = Column(Integer, primary_key=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    password_hash = Column(String, nullable=False)
+
+    def set_password(self, password: str):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password: str) -> bool:
+        return check_password_hash(self.password_hash, password)
